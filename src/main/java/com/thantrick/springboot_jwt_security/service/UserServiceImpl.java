@@ -1,13 +1,14 @@
 package com.thantrick.springboot_jwt_security.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thantrick.springboot_jwt_security.dto.UserDto;
 import com.thantrick.springboot_jwt_security.entity.UserEntity;
-import com.thantrick.springboot_jwt_security.model.UserDetailsRequestModel;
 import com.thantrick.springboot_jwt_security.repository.UserRepository;
 import com.thantrick.springboot_jwt_security.utils.GeneralUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -64,5 +65,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(long id) {
 
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        UserEntity userByEmail = userRepository.findUserByEmail(username);
+
+        if (userByEmail == null) throw new UsernameNotFoundException("User not registered Yet... Please Register first to login");
+
+        return new User(userByEmail.getEmail(), userByEmail.getEncryptedPassword(), new ArrayList<>());
     }
 }
