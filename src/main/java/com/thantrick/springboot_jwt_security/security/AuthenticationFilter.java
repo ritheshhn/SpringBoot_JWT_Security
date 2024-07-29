@@ -1,13 +1,18 @@
 package com.thantrick.springboot_jwt_security.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thantrick.springboot_jwt_security.SpringApplicationContext;
 import com.thantrick.springboot_jwt_security.model.UserLoginRequestModel;
+import com.thantrick.springboot_jwt_security.repository.UserRepository;
+import com.thantrick.springboot_jwt_security.service.UserService;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -54,11 +59,23 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         SecretKey secretKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS512.getJcaName());
 
         String userName = ((User) authResult.getPrincipal()).getUsername();
-        String Token = Jwts.builder()
+        String token = Jwts.builder()
                 .setSubject(userName)
                 .setExpiration(Date.from(Instant.now().plusMillis(SecurityConstants.EXPIRATION_TIME)))
                 .setIssuedAt(Date.from(Instant.now()))
                 .signWith(secretKey, SignatureAlgorithm.HS256).compact();
+
+        response.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX +" "+ token);
+
+        /*  In case of delete an user /update an user then we need UserId -> We can add userId in response header  */
+
+        /*  We have access to email (userName) in this class - we can call getUserByEmail() of UserService.
+            But we can not access userService in this class. Because AuthenticationFilter class is not a spring bean.
+            So we can create a class which extends 'ApplicationContextAware' interface
+                    ----> Refer SpringApplicationContext class          */
+
+        UserService userService = (UserService) SpringApplicationContext.getBean("userServiceImpl");
+        response.addHeader("userId", userService.getUserByEmail(userName).getUserId());
     }
 
 

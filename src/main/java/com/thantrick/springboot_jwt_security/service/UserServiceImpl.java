@@ -53,6 +53,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto getUserByEmail(String email) {
+        UserDto userDto = new UserDto();
+        BeanUtils.copyProperties(userRepository.findUserByEmail(email), userDto);
+        return userDto;
+    }
+
+    @Override
     public List<UserDto> getAllUsers() {
         return null;
     }
