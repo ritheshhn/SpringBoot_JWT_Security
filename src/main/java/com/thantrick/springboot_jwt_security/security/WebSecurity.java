@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
@@ -39,7 +40,11 @@ public class WebSecurity {
                 .authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, SecurityConstants.SIGN_UP_URL).permitAll())
                 .authorizeHttpRequests(request -> request.anyRequest().authenticated())
                 .authenticationManager(authenticationManager)
-                .addFilter(authenticationFilter);
+                .addFilter(authenticationFilter)
+                .addFilter(new AuthorizationFilter(authenticationManager))
+                .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        /*   Since we are making 'session as stateless' - Spring security will rely on JWT Web token for authorization   */
 
         return http.build();
     }

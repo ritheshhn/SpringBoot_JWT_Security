@@ -3,6 +3,7 @@ package com.thantrick.springboot_jwt_security.controller;
 import com.thantrick.springboot_jwt_security.dto.UserDto;
 import com.thantrick.springboot_jwt_security.model.UserDetailsRequestModel;
 import com.thantrick.springboot_jwt_security.model.UserResponseModel;
+import com.thantrick.springboot_jwt_security.security.SecurityConstants;
 import com.thantrick.springboot_jwt_security.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<?> addUser(@RequestBody UserDetailsRequestModel userDetails){
+
         UserDto user = new UserDto();
         BeanUtils.copyProperties(userDetails, user);
 
@@ -32,11 +34,21 @@ public class UserController {
         return new ResponseEntity<UserResponseModel>(userResponse,HttpStatus.CREATED);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/id/{id}")
     public UserDetailsRequestModel getUserById(@PathVariable long id){
         userService.getUserById(id);
         return null;
     }
+
+    @GetMapping("/email/{email}")
+    public UserResponseModel getUserById(@PathVariable String email){
+        UserDto userByEmail = userService.getUserByEmail(email);
+        UserResponseModel userResponseModel = new UserResponseModel();
+        BeanUtils.copyProperties(userByEmail, userResponseModel);
+        return userResponseModel;
+    }
+
+
 
     @GetMapping
     public List<UserDetailsRequestModel> getAllUsers(){

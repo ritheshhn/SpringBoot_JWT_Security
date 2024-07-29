@@ -27,6 +27,13 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 
+/**
+ * Created on 30-07-2024
+ *
+ * @author : Rithesh Nagaraj
+ * @project : SpringBoot_JWT_Security
+ */
+
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private AuthenticationManager authenticationManager;
@@ -56,7 +63,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                                             FilterChain chain, Authentication authResult) throws IOException, ServletException {
 
         byte[] secretKeyBytes = Base64.getEncoder().encode(SecurityConstants.TOKEN_SECRET.getBytes());
-        SecretKey secretKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS512.getJcaName());
+        SecretKey secretKey = new SecretKeySpec(secretKeyBytes, SignatureAlgorithm.HS256.getJcaName());
 
         String userName = ((User) authResult.getPrincipal()).getUsername();
         String token = Jwts.builder()
